@@ -20,13 +20,13 @@ img {
 
 div[clicked-x="true"] {
   background: #ffc0cb;
-  background-image: url("/img/x.png");
+  background-image: url("../img/x.png");
   background-size: 100px 100px;
 }
 
 div[clicked-o="true"] {
   background: #20b2aa;
-  background-image: url("/img/o.png");
+  background-image: url("../img/o.png");
   background-size: 100px 100px;
 }
 
