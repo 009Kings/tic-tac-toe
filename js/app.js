@@ -80,10 +80,8 @@ function click () {
         // Stop the game
         if (winX === "true" || winO === "true" ) {
             removeBoxListeners();
-            console.log("game over");
         } else if (numOfClicks == 9 && winX !== "true" && winO !== "true") {
             removeBoxListeners();
-            console.log("it's a tie!");
             ties += 1;
             counters[0].Draws.textContent = ties;
             counters[1].Draws.textContent = ties;
@@ -107,8 +105,6 @@ function checkForWinX () {
         if (win === "true") {
             // Announce the win
             console.log("It's a win for X!");
-            // Highlight the blocks
-            console.log(key);
             //plus up the counters
             xWins += 1;
             counters[0].Wins.textContent = xWins;
@@ -132,7 +128,6 @@ function checkForWinO () {
         }
         if (win === "true") {
             console.log("It's a win for O!");
-            console.log(key);
             oWins += 1;
             counters[0].Losses.textContent = oWins
             counters[1].Wins.textContent = oWins;
