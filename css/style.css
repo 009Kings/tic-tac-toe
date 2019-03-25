@@ -18,13 +18,13 @@ img {
   max-width: 70px;
 }
 
-div[clicked-x="true"] {
+div[clicked="x"] {
   background: #ffc0cb;
   background-image: url("../img/x.png");
   background-size: 100px 100px;
 }
 
-div[clicked-o="true"] {
+div[clicked="o"] {
   background: #20b2aa;
   background-image: url("../img/o.png");
   background-size: 100px 100px;

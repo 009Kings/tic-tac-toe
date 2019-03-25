@@ -2,159 +2,164 @@
 var t3boxes = document.querySelectorAll(".t3box");
 var whoseMove = document.querySelector(".whose-move");
 
+/*
+0  1  2
+3  4  5
+6  7  8
+*/
+
 var t3Grid = {
-    row1: [t3boxes[0], t3boxes[1], t3boxes[2]],
-    row2: [t3boxes[3], t3boxes[4], t3boxes[5]],
-    row3: [t3boxes[6], t3boxes[7], t3boxes[8]],
-    column1: [t3boxes[0], t3boxes[3], t3boxes[6]],
-    column2: [t3boxes[1], t3boxes[4], t3boxes[7]],
-    column3: [t3boxes[2], t3boxes[5], t3boxes[8]],
-    diagonal1: [t3boxes[0], t3boxes[4], t3boxes[8]],
-    diagonal2: [t3boxes[2], t3boxes[4], t3boxes[6]]
+  row1: [t3boxes[0], t3boxes[1], t3boxes[2]],
+  row2: [t3boxes[3], t3boxes[4], t3boxes[5]],
+  row3: [t3boxes[6], t3boxes[7], t3boxes[8]],
+  column1: [t3boxes[0], t3boxes[3], t3boxes[6]],
+  column2: [t3boxes[1], t3boxes[4], t3boxes[7]],
+  column3: [t3boxes[2], t3boxes[5], t3boxes[8]],
+  diagonal1: [t3boxes[0], t3boxes[4], t3boxes[8]],
+  diagonal2: [t3boxes[2], t3boxes[4], t3boxes[6]]
 }
-var counters = [    
+
+var state = {
+  numOfClicks: 0,
+  x: 0,
+  o: 0,
+  ties: 0,
+  counters: [    
     xPanel = {
-        img : document.querySelector("#x-panel[img]"),
-        Wins : document.querySelector("#x-wins span"),
-        Losses : document.querySelector("#x-losses span"),
-        Draws : document.querySelector("#x-draw span")
+      img : document.querySelector("#x-panel[img]"),
+      Wins : document.querySelector("#x-wins span"),
+      Losses : document.querySelector("#x-losses span"),
+      Draws : document.querySelector("#x-draw span")
     },
     oPanel = {
-        img : document.querySelector("#o-panel[img]"),
-        Wins : document.querySelector("#o-wins span"),
-        Losses : document.querySelector("#o-losses span"),
-        Draws : document.querySelector("#o-draw span")
-    }];
-
-var numOfClicks = 0;
-var xWins = oWins = ties = 0;
+      img : document.querySelector("#o-panel[img]"),
+      Wins : document.querySelector("#o-wins span"),
+      Losses : document.querySelector("#o-losses span"),
+      Draws : document.querySelector("#o-draw span")
+    }
+  ],
+}
 
 document.addEventListener("DOMContentLoaded", function(){
-    // DOM stuff here
-    start();
-    document.getElementById("try-again").addEventListener("click", clearBoard); 
-    document.getElementById("clear-game").addEventListener("click", clearGame);
+  // DOM stuff here
+  start();
+  document.getElementById("try-again").addEventListener("click", clearBoard); 
+  document.getElementById("clear-game").addEventListener("click", clearGame);
 });
 
 // Set up the game
 function start () {
-    addBoxListeners();
+  addBoxListeners();
 }
 
 // Add click listeners
 function addBoxListeners () {
-    for (let i = 0; i < t3boxes.length; i++) {
-        t3boxes[i].addEventListener("click", click);
-    }
+  for (let i = 0; i < t3boxes.length; i++) {
+    t3boxes[i].addEventListener("click", click);
+  }
 }
 
 function removeBoxListeners () {
-    for (let i = 0; i < t3boxes.length; i++) {
-        t3boxes[i].removeEventListener("click", click);
-    }
+  for (let i = 0; i < t3boxes.length; i++) {
+    t3boxes[i].removeEventListener("click", click);
+  }
 }
 
 // Click function
 function click () {
-    if (this.getAttribute("clicked") === "true") {
-        return;
-    }
-    //set clicked status to "clicked"
-    this.setAttribute("clicked", "true");
+  // If already clicked, bounce out
+  if (this.getAttribute("clicked") != "false") {
+    return;
+  }
 
-    //click x or o
-    if (numOfClicks % 2 === 0) {
-        this.setAttribute("clicked-x", "true");
-        whoseMove.textContent = "It's O's move";
-    } else {
-        this.setAttribute("clicked-o", "true");
-        whoseMove.textContent = "It's X's move";
-    }
+  //click x or o
+  if (state.numOfClicks % 2 === 0) {
+    this.setAttribute("clicked", "x");
+    whoseMove.textContent = "It's O's move";
+  } else {
+    this.setAttribute("clicked", "o");
+    whoseMove.textContent = "It's X's move";
+  }
 
-    numOfClicks += 1;
+  state.numOfClicks += 1;
 
-    // Time to check for win
-    if (numOfClicks >= 5) {
-        var winX = checkForWinX();
-        var winO = checkForWinO();
-        // Stop the game
-        if (winX === "true" || winO === "true" ) {
-            removeBoxListeners();
-        } else if (numOfClicks == 9 && winX !== "true" && winO !== "true") {
-            removeBoxListeners();
-            ties += 1;
-            counters[0].Draws.textContent = ties;
-            counters[1].Draws.textContent = ties;
-            whoseMove.textContent = "It's a tie!";
-        }
+  // Time to check for win
+  if (state.numOfClicks >= 5) {
+    let winner = checkForWin()
+    // Stop the game
+    if (winner) {
+      removeBoxListeners();
+    } else if (state.numOfClicks === 9) {
+      removeBoxListeners();
+      state.ties += 1;
+      state.counters[0].Draws.textContent = state.ties;
+      state.counters[1].Draws.textContent = state.ties;
+      whoseMove.textContent = "It's a tie!";
     }
+  }
 }
 
-//Check for win situations INCOMPLETE
-function checkForWinX () {
-    var win;
-    for (var key in t3Grid) {
-        win = "true";
-        for (let i = 0; i < t3Grid[key].length; i++) {
-            if (t3Grid[key][i].getAttribute("clicked") === "false") {
-                win = "false";
-            } else if (t3Grid[key][i].getAttribute("clicked-x") === "false") {
-                win = "false";
-            }
-        }
-        if (win === "true") {
-            // Announce the win
-            console.log("It's a win for X!");
-            //plus up the counters
-            xWins += 1;
-            counters[0].Wins.textContent = xWins;
-            counters[1].Losses.textContent = xWins;
-            whoseMove.textContent = "X Wins the game!"
-            return "true";
-        }
-    }
+//Check for win situations
+
+function checkForWin() {
+  if (checkForWinner("x")) {
+    return "x"
+  } else if (checkForWinner("o")) {
+    return "o"
+  } else {
+    return false
+  }
 }
 
-function checkForWinO () {
-    var win;
-    for (var key in t3Grid) {
-        win = "true";
-        for (let i = 0; i < t3Grid[key].length; i++) {
-            if (t3Grid[key][i].getAttribute("clicked") === "false") {
-                win = "false";
-            } else if (t3Grid[key][i].getAttribute("clicked-o") === "false") {
-                win = "false";
-            }
-        }
-        if (win === "true") {
-            console.log("It's a win for O!");
-            oWins += 1;
-            counters[0].Losses.textContent = oWins
-            counters[1].Wins.textContent = oWins;
-            whoseMove.textContent = "O wins the game!";
-            return "true";
-        }
+function checkForWinner(player) {
+  for (var key in t3Grid) {
+    let win = true;
+    console.log("Checking", key)
+    for (let i = 0; i < t3Grid[key].length; i++) {
+      if (t3Grid[key][i].getAttribute("clicked") !== player) {
+        win = false
+      }
     }
+    if (win) {
+      registerWin(player)
+      return true;
+    }
+  }
+  return false
+}
+
+function registerWin(winner) {
+  // Announce the win
+  console.log("It's a win for", winner);
+  //plus up the counters
+  state[winner] += 1;
+  whoseMove.textContent = `${winner} Wins the Game!`
+
+  if (winner === "x") {
+    state.counters[0].Wins.textContent = state[winner];
+    state.counters[1].Losses.textContent = state[winner];
+  } else {
+    state.counters[0].Losses.textContent = state[winner];
+    state.counters[1].Wins.textContent = state[winner];
+  }
 }
 
 function clearBoard () {
     for (let i = 0; i < t3boxes.length; i++) {
         t3boxes[i].setAttribute("clicked", "false");
-        t3boxes[i].setAttribute("clicked-x", "false");
-        t3boxes[i].setAttribute("clicked-o", "false"); 
     }
-    numOfClicks = 0;
+    state.numOfClicks = 0;
     // Checking if the clear clears num of clicks
     document.querySelector(".whose-move").textContent = "It's X's move";
     start();
 }
 
-function clearGame () {
+function clearGame() {
     clearBoard();
-    xWins = oWins = ties = 0;
-    for (var i = 0; i < counters.length; i++) {
-        counters[i].Wins.textContent = "0";
-        counters[i].Losses.textContent = "0";
-        counters[i].Draws.textContent = "0";
+    state.x = state.o = state.ties = 0;
+    for (var i = 0; i < state.counters.length; i++) {
+        state.counters[i].Wins.textContent = "0";
+        state.counters[i].Losses.textContent = "0";
+        state.counters[i].Draws.textContent = "0";
     }
 }
