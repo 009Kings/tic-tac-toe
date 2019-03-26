@@ -86,6 +86,7 @@ function click () {
   // Time to check for win
   if (state.numOfClicks >= 5) {
     let winner = checkForWin()
+
     // Stop the game
     if (winner) {
       removeBoxListeners();
@@ -96,6 +97,7 @@ function click () {
       state.counters[1].Draws.textContent = state.ties;
       whoseMove.textContent = "It's a tie!";
     }
+
   }
 }
 
@@ -115,11 +117,13 @@ function checkForWinner(player) {
   for (var key in t3Grid) {
     let win = true;
     console.log("Checking", key)
+    
     for (let i = 0; i < t3Grid[key].length; i++) {
       if (t3Grid[key][i].getAttribute("clicked") !== player) {
         win = false
       }
     }
+    
     if (win) {
       registerWin(player)
       return true;
